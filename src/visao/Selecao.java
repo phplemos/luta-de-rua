@@ -73,10 +73,12 @@ public class Selecao extends JPanel implements ActionListener {
                 if (click == 1) {
                     champP1 = CHARACTERS[i].getId();
                     click = 2;
-                    playButtons[i].setBackground(Color.RED);
+                    playButtons[i].setBackground(Color.BLUE);
+                    playButtons[i].setOpaque(true);
                 } else if (click == 2) {
                     champP2 = CHARACTERS[i].getId();
-                    playButtons[i].setBackground(Color.BLUE);
+                    playButtons[i].setBackground(Color.RED);
+                    playButtons[i].setOpaque(true);
                     click = 3;
                 }
                 return;
@@ -88,9 +90,9 @@ public class Selecao extends JPanel implements ActionListener {
             if (e.getSource() == getFight()) {
                 Game gframe = (Game) SwingUtilities.getWindowAncestor(this);
                 if(gframe != null){
-                    Player player1 = new Player(1,champP1, Color.BLUE);
-                    Player player2 = new Player(2,champP2, Color.RED);
-                    gframe.startGame(player1,player2);
+                    Player player1 = new Player(1, champP1, Color.BLUE);
+                    Player player2 = new Player(2, champP2, Color.RED);
+                    gframe.startGame(player1, player2);
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Press the button FIGHT to start!!");

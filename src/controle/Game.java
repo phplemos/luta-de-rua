@@ -27,6 +27,9 @@ public class Game extends JFrame implements Runnable {
     Thread t;
     Integer speed = 4;
     Boolean collision = false;
+    
+    Boolean p1HasAttacked = false;
+    Boolean p2HasAttacked = false;
 
     private JLabel stage = null;
 
@@ -199,14 +202,16 @@ public class Game extends JFrame implements Runnable {
     //Açoes do P1
     public void updateGameP1() {
         if (keyA) {
-            if (player1.x >= 0) {
+            Rectangle nextStep = new Rectangle(player1.x - speed + 20, player1.y, 50, 127);
+            if (player1.x >= 0 && !nextStep.intersects(player2.getHitbox())) {
                 player1.setIconLeft();
                 player1.x -= speed;
             }
         }
 
         if (keyD) {
-            if (player1.x <= 706) {
+            Rectangle nextStep = new Rectangle(player1.x + speed + 20, player1.y, 50, 127);
+            if (player1.x <= 706 && !nextStep.intersects(player2.getHitbox())) {
                 player1.setIconRight();
                 player1.x += speed;
             }
@@ -215,51 +220,56 @@ public class Game extends JFrame implements Runnable {
         //Punch
         if (keyJ) {
             player1.setIconPunch();
-            collision();
-            if (collision) {
-                if (keyNum3 == true) {//Bloqueio do P2 ativo
-                    //Punch Damage with defense
-                    hp2 -= 1;
-                    healthBarP2.setValue(hp2);
-                    if (hp2 <= 0) {
-                        this.running = false; // Stop game loop first
-                        JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
-                    }
-                } else {
-                    //Punch Damage without defense
-                    hp2 -= 2;
-                    healthBarP2.setValue(hp2);
-                    if (hp2 <= 0) {
-                        this.running = false; // Stop game loop first
-                        JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+            if (!p1HasAttacked) {
+                collision();
+                if (collision) {
+                    if (keyNum3 == true) {//Bloqueio do P2 ativo
+                        //Punch Damage with defense
+                        hp2 -= 1;
+                        healthBarP2.setValue(hp2);
+                        if (hp2 <= 0) {
+                            this.running = false; // Stop game loop first
+                            JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+                        }
+                    } else {
+                        //Punch Damage without defense
+                        hp2 -= 2;
+                        healthBarP2.setValue(hp2);
+                        if (hp2 <= 0) {
+                            this.running = false; // Stop game loop first
+                            JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+                        }
                     }
                 }
+                p1HasAttacked = true;
             }
-        }
-
-        //Kick
-        if (keyK) {
+        } else if (keyK) {
             player1.setIconKick();
-            collision();
-            if (collision) {
-                if (keyNum3 == true) {//Bloqueio do P2 ativo
-                    //Kick Damage with defense
-                    hp2 -= 3;
-                    healthBarP2.setValue(hp2);
-                    if (hp2 <= 0) {
-                        this.running = false; // Stop game loop first
-                        JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
-                    }
-                } else {
-                    //Kick Damage without defense
-                    hp2 -= 4;
-                    healthBarP2.setValue(hp2);
-                    if (hp2 <= 0) {
-                        this.running = false; // Stop game loop first
-                        JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+            if (!p1HasAttacked) {
+                collision();
+                if (collision) {
+                    if (keyNum3 == true) {//Bloqueio do P2 ativo
+                        //Kick Damage with defense
+                        hp2 -= 3;
+                        healthBarP2.setValue(hp2);
+                        if (hp2 <= 0) {
+                            this.running = false; // Stop game loop first
+                            JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+                        }
+                    } else {
+                        //Kick Damage without defense
+                        hp2 -= 4;
+                        healthBarP2.setValue(hp2);
+                        if (hp2 <= 0) {
+                            this.running = false; // Stop game loop first
+                            JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+                        }
                     }
                 }
+                p1HasAttacked = true;
             }
+        } else {
+            p1HasAttacked = false;
         }
 
         //Defense
@@ -277,14 +287,16 @@ public class Game extends JFrame implements Runnable {
     //Açoes do P2
     public void updateGameP2() {
         if (keyRight) {
-            if (player2.x <= 706) {
+            Rectangle nextStep = new Rectangle(player2.x + speed + 20, player2.y, 50, 127);
+            if (player2.x <= 706 && !nextStep.intersects(player1.getHitbox())) {
                 player2.setIconRight();
                 player2.x += speed;
             }
         }
 
         if (keyLeft) {
-            if (player2.x >= 0) {
+            Rectangle nextStep = new Rectangle(player2.x - speed + 20, player2.y, 50, 127);
+            if (player2.x >= 0 && !nextStep.intersects(player1.getHitbox())) {
                 player2.setIconLeft();
                 player2.x -= speed;
             }
@@ -293,52 +305,56 @@ public class Game extends JFrame implements Runnable {
         //Punch
         if (keyNum1) {
             player2.setIconPunch();
-            collision();
-            if (collision) {
-                if (keyL == true) {//Bloqueio do P1 ativo
-                    //Punch Damage with defense
-                    hp1 -= 1;
-                    healthBarP1.setValue((int) hp1);
-                    if (hp1 <= 0) {
-                        this.running = false; // Stop game loop first
-                        JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
-                    }
-                } else {
-                    //Punch Damage without defense
-                    hp1 -= 2;
-                    healthBarP1.setValue((int) hp1);
-                    if (hp1 <= 0) {
-                        this.running = false; // Stop game loop first
-                        JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+            if (!p2HasAttacked) {
+                collision();
+                if (collision) {
+                    if (keyL == true) {//Bloqueio do P1 ativo
+                        //Punch Damage with defense
+                        hp1 -= 1;
+                        healthBarP1.setValue((int) hp1);
+                        if (hp1 <= 0) {
+                            this.running = false; // Stop game loop first
+                            JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+                        }
+                    } else {
+                        //Punch Damage without defense
+                        hp1 -= 2;
+                        healthBarP1.setValue((int) hp1);
+                        if (hp1 <= 0) {
+                            this.running = false; // Stop game loop first
+                            JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+                        }
                     }
                 }
+                p2HasAttacked = true;
             }
-        }
-
-        //Kick
-        if (keyNum2) {
+        } else if (keyNum2) {
             player2.setIconKick();
-            collision();
-            if (collision) {
-                if (keyL == true) {//Bloqueio do P1 ativo
-                    //Kick Damage with defense
-                    hp1 -= 3;
-                    healthBarP1.setValue(hp1);
-                    if (hp1 <= 0) {
-                        this.running = false; // Stop game loop first
-                        JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
-
-                    }
-                } else {
-                    //Kick Damage without defense
-                    hp1 -= 4;
-                    healthBarP1.setValue(hp1);
-                    if (hp1 <= 0) {
-                        this.running = false; // Stop game loop first
-                        JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+            if (!p2HasAttacked) {
+                collision();
+                if (collision) {
+                    if (keyL == true) {//Bloqueio do P1 ativo
+                        //Kick Damage with defense
+                        hp1 -= 3;
+                        healthBarP1.setValue(hp1);
+                        if (hp1 <= 0) {
+                            this.running = false; // Stop game loop first
+                            JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+                        }
+                    } else {
+                        //Kick Damage without defense
+                        hp1 -= 4;
+                        healthBarP1.setValue(hp1);
+                        if (hp1 <= 0) {
+                            this.running = false; // Stop game loop first
+                            JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+                        }
                     }
                 }
+                p2HasAttacked = true;
             }
+        } else {
+            p2HasAttacked = false;
         }
 
         //Defense
@@ -355,8 +371,8 @@ public class Game extends JFrame implements Runnable {
 
     //Verificar colisaao
     public void collision() {
-        Rectangle rectangle1 = player1.getBounds();
-        Rectangle rectangle2 = player2.getBounds();
+        Rectangle rectangle1 = player1.getHitbox();
+        Rectangle rectangle2 = player2.getHitbox();
         collision = rectangle1.intersects(rectangle2);
     }
 

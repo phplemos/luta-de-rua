@@ -77,6 +77,10 @@ public class Player extends JLabel {
         setBounds(x, y, 90, 127);
     }
 
+    public Rectangle getHitbox() {
+        return new Rectangle(x + 20, y, 50, 127);
+    }
+
     public void setIconRight() {
         setIcon(walkR);
         this.ultimaImg = walkR;

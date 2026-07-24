@@ -14,12 +14,12 @@ public class CharacterData {
     }
 
     public static final CharacterData[] CHARACTERS = {
-            new CharacterData("chun", "play1.gif", 40, 98),
-            new CharacterData("sheeva", "play2.gif", 140, 117),
-            new CharacterData("akuma", "play3.gif", 259, 120),
-            new CharacterData("cable", "play4.gif", 382, 117),
-            new CharacterData("spider", "play5.gif", 500, 129),
-            new CharacterData("doom", "play6.gif", 629, 129)
+            new CharacterData("chun", "play1.gif", 20, 110),
+            new CharacterData("sheeva", "play2.gif", 150, 110),
+            new CharacterData("akuma", "play3.gif", 280, 110),
+            new CharacterData("cable", "play4.gif", 410, 110),
+            new CharacterData("spider", "play5.gif", 540, 110),
+            new CharacterData("doom", "play6.gif", 670, 110)
     };
 
     public int getWidth() {

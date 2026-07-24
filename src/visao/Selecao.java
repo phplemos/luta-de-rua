@@ -23,6 +23,9 @@ public class Selecao extends JPanel implements ActionListener {
     int click = 1;
 
     private JLabel fundo = null;
+    private JLabel p1Label = new JLabel("PLAYER 1: SELECIONANDO...");
+    private JLabel p2Label = new JLabel("PLAYER 2: AGUARDANDO...");
+    private JLabel matchInfoLabel = new JLabel("LUTA DE RUA - MELHOR DE 3 (60s)");
 
     public Selecao() {
         super();
@@ -30,22 +33,78 @@ public class Selecao extends JPanel implements ActionListener {
 
         add(getMenu());
         getFight().addActionListener(this);
+        
+        setupKeyBindings();
+    }
+    
+    private void setupKeyBindings() {
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), "undo");
+        this.getActionMap().put("undo", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                undoSelection();
+            }
+        });
+    }
 
+    private void undoSelection() {
+        if (click == 3) {
+            click = 2;
+            champP2 = null;
+            p2Label.setText("PLAYER 2: SELECIONANDO...");
+            for (int i = 0; i < CHARACTERS.length; i++) {
+                if (Color.RED.equals(playButtons[i].getBackground())) {
+                    playButtons[i].setBackground(null);
+                    playButtons[i].setOpaque(false);
+                    break;
+                }
+            }
+        } else if (click == 2) {
+            click = 1;
+            champP1 = null;
+            p1Label.setText("PLAYER 1: SELECIONANDO...");
+            p2Label.setText("PLAYER 2: AGUARDANDO...");
+            for (int i = 0; i < CHARACTERS.length; i++) {
+                if (Color.CYAN.equals(playButtons[i].getBackground())) {
+                    playButtons[i].setBackground(null);
+                    playButtons[i].setOpaque(false);
+                    break;
+                }
+            }
+        }
     }
 
     public JLabel getMenu() {
         if (fundo == null) {
             fundo = new JLabel(new ImageIcon(getClass().getResource("/assets/Selecao.png")));
             fundo.setSize(800, 600);
+            
+            p1Label.setBounds(20, 20, 300, 30);
+            p1Label.setFont(new Font("Arial", Font.BOLD, 24));
+            p1Label.setForeground(Color.CYAN);
+            fundo.add(p1Label);
+            
+            p2Label.setBounds(480, 20, 300, 30);
+            p2Label.setFont(new Font("Arial", Font.BOLD, 24));
+            p2Label.setForeground(Color.RED);
+            p2Label.setHorizontalAlignment(SwingConstants.RIGHT);
+            fundo.add(p2Label);
+            
+            matchInfoLabel.setBounds(0, 180, 800, 30);
+            matchInfoLabel.setFont(new Font("Arial", Font.BOLD, 22));
+            matchInfoLabel.setForeground(Color.YELLOW);
+            matchInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            fundo.add(matchInfoLabel);
+
             for (int i = 0; i < CHARACTERS.length; i++) {
                 CharacterData cd = CHARACTERS[i];
                 playButtons[i] = new JButton(new ImageIcon(getClass().getResource("/assets/"+cd.getIconFile())));
                 playButtons[i].setBounds(cd.getX(), 238, cd.getWidth(), 244);
                 playButtons[i].addActionListener(this);
                 playButtons[i].setBackground(null);
-                add(playButtons[i]);
+                fundo.add(playButtons[i]);
             }
-            add(getFight());
+            fundo.add(getFight());
         }
         return fundo;
     }
@@ -53,7 +112,10 @@ public class Selecao extends JPanel implements ActionListener {
     public JButton getFight() {
         if (fight == null) {
             fight = new JButton(new ImageIcon(getClass().getResource("/assets/fight.png")));
-            fight.setBounds(400, 155, 130, 60);
+            fight.setBounds(325, 20, 150, 150);
+            fight.setBorderPainted(false);
+            fight.setContentAreaFilled(false);
+            fight.setFocusPainted(false);
         }
         return fight;
     }
@@ -73,12 +135,15 @@ public class Selecao extends JPanel implements ActionListener {
                 if (click == 1) {
                     champP1 = CHARACTERS[i].getId();
                     click = 2;
-                    playButtons[i].setBackground(Color.BLUE);
+                    playButtons[i].setBackground(Color.CYAN);
                     playButtons[i].setOpaque(true);
+                    p1Label.setText("PLAYER 1: " + champP1.toUpperCase());
+                    p2Label.setText("PLAYER 2: SELECIONANDO...");
                 } else if (click == 2) {
                     champP2 = CHARACTERS[i].getId();
                     playButtons[i].setBackground(Color.RED);
                     playButtons[i].setOpaque(true);
+                    p2Label.setText("PLAYER 2: " + champP2.toUpperCase());
                     click = 3;
                 }
                 return;

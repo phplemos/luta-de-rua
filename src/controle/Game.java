@@ -1,6 +1,7 @@
 package controle;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
@@ -8,6 +9,7 @@ import javax.swing.*;
 
 import modelo.Player;
 import visao.Selecao;
+import visao.Vencedor;
 
 
 public class Game extends JFrame implements Runnable {
@@ -15,17 +17,25 @@ public class Game extends JFrame implements Runnable {
     private volatile boolean running = true;
 
     Player player1;
-    Boolean keyRight = false, keyLeft = false, keyNum1 = false, keyNum2 = false, keyNum3 = false;
+    Boolean keyRight = false, keyLeft = false, keyUp = false, keyNum1 = false, keyNum2 = false, keyNum3 = false;
 
     Player player2;
-    Boolean keyA = false, keyD = false, keyJ = false, keyK = false, keyL = false;
+    Boolean keyA = false, keyD = false, keyW = false, keyJ = false, keyK = false, keyL = false;
 
     public JProgressBar healthBarP1 = new JProgressBar();
     public JProgressBar healthBarP2 = new JProgressBar();
     int hp1 = 250, hp2 = 250;
 
+    public JLabel timerLabel = new JLabel("60", SwingConstants.CENTER);
+    public JLabel p1WinsLabel = new JLabel("Venceu: 0", SwingConstants.LEFT);
+    public JLabel p2WinsLabel = new JLabel("Venceu: 0", SwingConstants.RIGHT);
+    
+    int timeLeft = 60;
+    int p1Wins = 0, p2Wins = 0;
+    long lastTickTime;
+
     Thread t;
-    Integer speed = 4;
+    Integer speed = 8;
     Boolean collision = false;
     
     Boolean p1HasAttacked = false;
@@ -78,44 +88,122 @@ public class Game extends JFrame implements Runnable {
         getContentPane().removeAll();
         this.player1 = p1;
         this.player2 = p2;
+        p1Wins = 0;
+        p2Wins = 0;
 
-        //Player 1
-        player1.setup();
-
-        //Barra de HP Player 1
         healthBarP1.setBounds(30, 30, 300, 15);
-        healthBarP2.setMinimum(0);
+        healthBarP1.setMinimum(0);
         healthBarP1.setMaximum(250);
-        healthBarP1.setValue(hp1);
-        healthBarP1.setForeground(player1.getColor());
-        this.add(healthBarP1);
 
-        //Player 2
-        player2.setup();
-
-        //Barra de HP Player 2
         healthBarP2.setBounds(450, 30, 300, 15);
         healthBarP2.setMinimum(0);
         healthBarP2.setMaximum(250);
-        healthBarP2.setValue(hp2);
-        healthBarP2.setForeground(player2.getColor());
+
+        timerLabel.setBounds(350, 10, 100, 50);
+        timerLabel.setFont(new Font("Arial", Font.BOLD, 40));
+        timerLabel.setForeground(Color.WHITE);
+
+        p1WinsLabel.setBounds(30, 10, 100, 20);
+        p1WinsLabel.setForeground(Color.WHITE);
+
+        p2WinsLabel.setBounds(650, 10, 100, 20);
+        p2WinsLabel.setForeground(Color.WHITE);
+
+        this.add(healthBarP1);
         this.add(healthBarP2);
+        this.add(timerLabel);
+        this.add(p1WinsLabel);
+        this.add(p2WinsLabel);
 
         getContentPane().add(player1);
         getContentPane().add(player2);
         getContentPane().add(getStage());
+
+        startRound();
+    }
+
+    public void startRound() {
+        hp1 = 250;
+        hp2 = 250;
+        healthBarP1.setValue(hp1);
+        healthBarP2.setValue(hp2);
+        
+        timeLeft = 60;
+        timerLabel.setText(String.valueOf(timeLeft));
+        lastTickTime = System.currentTimeMillis();
+        
+        keyA = false; keyD = false; keyW = false; keyJ = false; keyK = false; keyL = false;
+        keyRight = false; keyLeft = false; keyUp = false; keyNum1 = false; keyNum2 = false; keyNum3 = false;
+        p1HasAttacked = false; p2HasAttacked = false;
+        
+        player1.x = 100;
+        player1.y = 430;
+        player1.isJumping = false;
+        player1.setIconStopped();
+        player1.setup();
+        healthBarP1.setForeground(player1.getColor());
+        
+        player2.x = 600;
+        player2.y = 430;
+        player2.isJumping = false;
+        player2.setIconStopped();
+        player2.setup();
+        healthBarP2.setForeground(player2.getColor());
+        
+        p1WinsLabel.setText("Venceu: " + p1Wins);
+        p2WinsLabel.setText("Venceu: " + p2Wins);
+        
         revalidate();
         repaint();
         this.setFocusable(true);
         this.requestFocusInWindow();
+        
+        this.running = true;
         t = new Thread(this);
         t.start();
+    }
+
+    public void checkRoundEnd(boolean timeOut) {
+        if (!running) return;
+        running = false;
+        
+        int winner = 0; // 1 = P1, 2 = P2, 0 = Tie
+        
+        if (timeOut) {
+            if (hp1 > hp2) winner = 1;
+            else if (hp2 > hp1) winner = 2;
+        } else {
+            if (hp1 <= 0 && hp2 > 0) winner = 2;
+            else if (hp2 <= 0 && hp1 > 0) winner = 1;
+        }
+        
+        if (winner == 1) p1Wins++;
+        else if (winner == 2) p2Wins++;
+        
+        p1WinsLabel.setText("Venceu: " + p1Wins);
+        p2WinsLabel.setText("Venceu: " + p2Wins);
+        
+        if (p1Wins == 2 || p2Wins == 2) {
+            String msg = (p1Wins == 2) ? "PLAYER 1 VENCEU A LUTA!" : "PLAYER 2 VENCEU A LUTA!";
+            Vencedor vencedorPanel = new Vencedor(msg);
+            setContentPane(vencedorPanel);
+            revalidate();
+            repaint();
+            vencedorPanel.requestFocusInWindow();
+        } else {
+            String msg = (winner == 1) ? "PLAYER 1 Venceu o Round!" : (winner == 2) ? "PLAYER 2 Venceu o Round!" : "Empate!";
+            JOptionPane.showMessageDialog(this, msg);
+            startRound();
+        }
     }
 
     //Tecla Pressionada
     private void formKeyPressed(KeyEvent evt) {
         switch (evt.getKeyCode()) {
             //Player 1
+            case KeyEvent.VK_W:
+                keyW = true;
+                break;
             case KeyEvent.VK_A:
                 keyA = true;
                 break;
@@ -133,6 +221,9 @@ public class Game extends JFrame implements Runnable {
                 break;
 
             //Player 2
+            case KeyEvent.VK_UP:
+                keyUp = true;
+                break;
             case KeyEvent.VK_RIGHT:
                 keyRight = true;
                 break;
@@ -155,6 +246,9 @@ public class Game extends JFrame implements Runnable {
     private void formKeyReleased(KeyEvent evt) {
         switch (evt.getKeyCode()) {
             //Player 1
+            case KeyEvent.VK_W:
+                keyW = false;
+                break;
             case KeyEvent.VK_A:
                 keyA = false;
                 break;
@@ -172,6 +266,9 @@ public class Game extends JFrame implements Runnable {
                 break;
 
             //Player 2
+            case KeyEvent.VK_UP:
+                keyUp = false;
+                break;
             case KeyEvent.VK_RIGHT:
                 keyRight = false;
                 break;
@@ -201,19 +298,27 @@ public class Game extends JFrame implements Runnable {
 
     //Açoes do P1
     public void updateGameP1() {
-        if (keyA) {
-            Rectangle nextStep = new Rectangle(player1.x - speed + 20, player1.y, 50, 127);
-            if (player1.x >= 0 && !nextStep.intersects(player2.getHitbox())) {
-                player1.setIconLeft();
-                player1.x -= speed;
-            }
+        if (keyW) {
+            player1.jump();
         }
 
-        if (keyD) {
-            Rectangle nextStep = new Rectangle(player1.x + speed + 20, player1.y, 50, 127);
-            if (player1.x <= 706 && !nextStep.intersects(player2.getHitbox())) {
-                player1.setIconRight();
-                player1.x += speed;
+        boolean p1IsAttacking = keyJ || keyK || keyL;
+
+        if (!p1IsAttacking) {
+            if (keyA) {
+                Rectangle nextStep = new Rectangle(player1.x - speed + 20, player1.y, 50, 127);
+                if (player1.x >= 0 && !nextStep.intersects(player2.getHitbox())) {
+                    player1.setIconLeft();
+                    player1.x -= speed;
+                }
+            }
+
+            if (keyD) {
+                Rectangle nextStep = new Rectangle(player1.x + speed + 20, player1.y, 50, 127);
+                if (player1.x <= 706 && !nextStep.intersects(player2.getHitbox())) {
+                    player1.setIconRight();
+                    player1.x += speed;
+                }
             }
         }
 
@@ -225,19 +330,17 @@ public class Game extends JFrame implements Runnable {
                 if (collision) {
                     if (keyNum3 == true) {//Bloqueio do P2 ativo
                         //Punch Damage with defense
-                        hp2 -= 1;
+                        hp2 -= 5;
                         healthBarP2.setValue(hp2);
                         if (hp2 <= 0) {
-                            this.running = false; // Stop game loop first
-                            JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+                            checkRoundEnd(false);
                         }
                     } else {
                         //Punch Damage without defense
-                        hp2 -= 2;
+                        hp2 -= 15;
                         healthBarP2.setValue(hp2);
                         if (hp2 <= 0) {
-                            this.running = false; // Stop game loop first
-                            JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+                            checkRoundEnd(false);
                         }
                     }
                 }
@@ -250,19 +353,17 @@ public class Game extends JFrame implements Runnable {
                 if (collision) {
                     if (keyNum3 == true) {//Bloqueio do P2 ativo
                         //Kick Damage with defense
-                        hp2 -= 3;
+                        hp2 -= 10;
                         healthBarP2.setValue(hp2);
                         if (hp2 <= 0) {
-                            this.running = false; // Stop game loop first
-                            JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+                            checkRoundEnd(false);
                         }
                     } else {
                         //Kick Damage without defense
-                        hp2 -= 4;
+                        hp2 -= 25;
                         healthBarP2.setValue(hp2);
                         if (hp2 <= 0) {
-                            this.running = false; // Stop game loop first
-                            JOptionPane.showMessageDialog(null, "PLAYER 1 VENCE!!");
+                            checkRoundEnd(false);
                         }
                     }
                 }
@@ -286,19 +387,27 @@ public class Game extends JFrame implements Runnable {
 
     //Açoes do P2
     public void updateGameP2() {
-        if (keyRight) {
-            Rectangle nextStep = new Rectangle(player2.x + speed + 20, player2.y, 50, 127);
-            if (player2.x <= 706 && !nextStep.intersects(player1.getHitbox())) {
-                player2.setIconRight();
-                player2.x += speed;
-            }
+        if (keyUp) {
+            player2.jump();
         }
 
-        if (keyLeft) {
-            Rectangle nextStep = new Rectangle(player2.x - speed + 20, player2.y, 50, 127);
-            if (player2.x >= 0 && !nextStep.intersects(player1.getHitbox())) {
-                player2.setIconLeft();
-                player2.x -= speed;
+        boolean p2IsAttacking = keyNum1 || keyNum2 || keyNum3;
+
+        if (!p2IsAttacking) {
+            if (keyRight) {
+                Rectangle nextStep = new Rectangle(player2.x + speed + 20, player2.y, 50, 127);
+                if (player2.x <= 706 && !nextStep.intersects(player1.getHitbox())) {
+                    player2.setIconRight();
+                    player2.x += speed;
+                }
+            }
+
+            if (keyLeft) {
+                Rectangle nextStep = new Rectangle(player2.x - speed + 20, player2.y, 50, 127);
+                if (player2.x >= 0 && !nextStep.intersects(player1.getHitbox())) {
+                    player2.setIconLeft();
+                    player2.x -= speed;
+                }
             }
         }
 
@@ -310,19 +419,17 @@ public class Game extends JFrame implements Runnable {
                 if (collision) {
                     if (keyL == true) {//Bloqueio do P1 ativo
                         //Punch Damage with defense
-                        hp1 -= 1;
+                        hp1 -= 5;
                         healthBarP1.setValue((int) hp1);
                         if (hp1 <= 0) {
-                            this.running = false; // Stop game loop first
-                            JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+                            checkRoundEnd(false);
                         }
                     } else {
                         //Punch Damage without defense
-                        hp1 -= 2;
+                        hp1 -= 15;
                         healthBarP1.setValue((int) hp1);
                         if (hp1 <= 0) {
-                            this.running = false; // Stop game loop first
-                            JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+                            checkRoundEnd(false);
                         }
                     }
                 }
@@ -335,19 +442,17 @@ public class Game extends JFrame implements Runnable {
                 if (collision) {
                     if (keyL == true) {//Bloqueio do P1 ativo
                         //Kick Damage with defense
-                        hp1 -= 3;
+                        hp1 -= 10;
                         healthBarP1.setValue(hp1);
                         if (hp1 <= 0) {
-                            this.running = false; // Stop game loop first
-                            JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+                            checkRoundEnd(false);
                         }
                     } else {
                         //Kick Damage without defense
-                        hp1 -= 4;
+                        hp1 -= 25;
                         healthBarP1.setValue(hp1);
                         if (hp1 <= 0) {
-                            this.running = false; // Stop game loop first
-                            JOptionPane.showMessageDialog(null, "PLAYER 2 VENCE!!");
+                            checkRoundEnd(false);
                         }
                     }
                 }
@@ -373,6 +478,9 @@ public class Game extends JFrame implements Runnable {
     public void collision() {
         Rectangle rectangle1 = player1.getHitbox();
         Rectangle rectangle2 = player2.getHitbox();
+        // Expande o hitbox temporário em 15 pixels para a esquerda e direita
+        // garantindo que os ataques alcancem mesmo se a física de bloqueio (corpos sólidos) travar o movimento
+        rectangle1.grow(15, 0); 
         collision = rectangle1.intersects(rectangle2);
     }
 
@@ -380,9 +488,21 @@ public class Game extends JFrame implements Runnable {
     public void run() {
         while (running) { // Use a loop condition flag
             try {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastTickTime >= 1000) {
+                    timeLeft--;
+                    lastTickTime = currentTime;
+                    SwingUtilities.invokeLater(() -> timerLabel.setText(String.valueOf(timeLeft)));
+                    if (timeLeft <= 0) {
+                        SwingUtilities.invokeLater(() -> checkRoundEnd(true));
+                    }
+                }
+                
                 SwingUtilities.invokeLater(() -> {
-                    updateGameP1();
-                    updateGameP2();
+                    if (running) {
+                        updateGameP1();
+                        updateGameP2();
+                    }
                 });
                 Thread.sleep(20);
             } catch (InterruptedException e) {

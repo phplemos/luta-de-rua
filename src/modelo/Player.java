@@ -7,6 +7,9 @@ public class Player extends JLabel {
 
     public int x;
     public int y = 430;
+    public boolean isJumping = false;
+    public int velocityY = 0;
+    public final int GROUND_Y = 430;
     private int playerNum;
     private Color color;
     private ImageIcon walkL;
@@ -74,7 +77,23 @@ public class Player extends JLabel {
     }
 
     public void move() {
+        if (isJumping) {
+            y += velocityY;
+            velocityY += 3; // Gravity
+            if (y >= GROUND_Y) {
+                y = GROUND_Y;
+                isJumping = false;
+                velocityY = 0;
+            }
+        }
         setBounds(x, y, 90, 127);
+    }
+
+    public void jump() {
+        if (!isJumping) {
+            isJumping = true;
+            velocityY = -30;
+        }
     }
 
     public Rectangle getHitbox() {

@@ -354,7 +354,8 @@ public class Game extends JFrame implements Runnable {
         if (!p1IsAttacking) {
             if (keyA) {
                 Rectangle nextStep = new Rectangle(player1.x - speed + 20, player1.y, 50, 127);
-                if (player1.x >= 0 && !nextStep.intersects(player2.getHitbox())) {
+                boolean movingAway = player1.x <= player2.x;
+                if (player1.x >= 0 && (movingAway || !nextStep.intersects(player2.getHitbox()))) {
                     player1.setIconLeft();
                     player1.x -= speed;
                 }
@@ -362,7 +363,8 @@ public class Game extends JFrame implements Runnable {
 
             if (keyD) {
                 Rectangle nextStep = new Rectangle(player1.x + speed + 20, player1.y, 50, 127);
-                if (player1.x <= 706 && !nextStep.intersects(player2.getHitbox())) {
+                boolean movingAway = player1.x >= player2.x;
+                if (player1.x <= 706 && (movingAway || !nextStep.intersects(player2.getHitbox()))) {
                     player1.setIconRight();
                     player1.x += speed;
                 }
@@ -455,7 +457,8 @@ public class Game extends JFrame implements Runnable {
         if (!p2IsAttacking) {
             if (keyRight) {
                 Rectangle nextStep = new Rectangle(player2.x + speed + 20, player2.y, 50, 127);
-                if (player2.x <= 706 && !nextStep.intersects(player1.getHitbox())) {
+                boolean movingAway = player2.x >= player1.x;
+                if (player2.x <= 706 && (movingAway || !nextStep.intersects(player1.getHitbox()))) {
                     player2.setIconRight();
                     player2.x += speed;
                 }
@@ -463,7 +466,8 @@ public class Game extends JFrame implements Runnable {
 
             if (keyLeft) {
                 Rectangle nextStep = new Rectangle(player2.x - speed + 20, player2.y, 50, 127);
-                if (player2.x >= 0 && !nextStep.intersects(player1.getHitbox())) {
+                boolean movingAway = player2.x <= player1.x;
+                if (player2.x >= 0 && (movingAway || !nextStep.intersects(player1.getHitbox()))) {
                     player2.setIconLeft();
                     player2.x -= speed;
                 }

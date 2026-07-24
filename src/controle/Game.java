@@ -30,6 +30,7 @@ public class Game extends JFrame implements Runnable {
     public JLabel p1WinsLabel = new JLabel("Venceu: 0", SwingConstants.LEFT);
     public JLabel p2WinsLabel = new JLabel("Venceu: 0", SwingConstants.RIGHT);
     public JLabel roundResultLabel = new JLabel("", SwingConstants.CENTER);
+    private JLabel[] roundResultShadows = new JLabel[8];
     
     int timeLeft = 60;
     int p1Wins = 0, p2Wins = 0;
@@ -134,10 +135,23 @@ public class Game extends JFrame implements Runnable {
         p2WinsLabel.setBounds(650, 10, 100, 20);
         p2WinsLabel.setForeground(Color.WHITE);
 
-        roundResultLabel.setBounds(0, 200, 800, 100);
-        roundResultLabel.setFont(new Font("Arial", Font.BOLD, 48));
-        roundResultLabel.setForeground(Color.YELLOW);
+        Font roundFont = new Font("Impact", Font.BOLD, 55);
+        int[] dx = {-2, 0, 2, -2, 2, -2, 0, 2};
+        int[] dy = {-2, -2, -2, 0, 0, 2, 2, 2};
+
+        // Main label first (drawn on top)
+        roundResultLabel.setBounds(2, 200, 800, 100);
+        roundResultLabel.setFont(roundFont);
         roundResultLabel.setVisible(false);
+
+        // Shadows next (drawn behind)
+        for (int i = 0; i < 8; i++) {
+            roundResultShadows[i] = new JLabel("", SwingConstants.CENTER);
+            roundResultShadows[i].setBounds(2 + dx[i], 200 + dy[i], 800, 100);
+            roundResultShadows[i].setFont(roundFont);
+            roundResultShadows[i].setForeground(Color.BLACK);
+            roundResultShadows[i].setVisible(false);
+        }
 
         battlePanel.add(healthBarP1);
         battlePanel.add(healthBarP2);
@@ -145,6 +159,9 @@ public class Game extends JFrame implements Runnable {
         battlePanel.add(p1WinsLabel);
         battlePanel.add(p2WinsLabel);
         battlePanel.add(roundResultLabel);
+        for (int i = 0; i < 8; i++) {
+            battlePanel.add(roundResultShadows[i]);
+        }
 
         battlePanel.add(player1);
         battlePanel.add(player2);
@@ -229,13 +246,24 @@ public class Game extends JFrame implements Runnable {
             vencedorPanel.requestFocusInWindow();
         } else {
             String msg = (winner == 1) ? "PLAYER 1 VENCEU O ROUND!" : (winner == 2) ? "PLAYER 2 VENCEU O ROUND!" : "EMPATE!";
+            Color msgColor = (winner == 1) ? Color.CYAN : (winner == 2) ? Color.RED : Color.YELLOW;
+
             roundResultLabel.setText(msg);
+            roundResultLabel.setForeground(msgColor);
             roundResultLabel.setVisible(true);
+
+            for (int i = 0; i < 8; i++) {
+                roundResultShadows[i].setText(msg);
+                roundResultShadows[i].setVisible(true);
+            }
             
             javax.swing.Timer timer = new javax.swing.Timer(3000, new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     roundResultLabel.setVisible(false);
+                    for (int i = 0; i < 8; i++) {
+                        roundResultShadows[i].setVisible(false);
+                    }
                     AudioPlayer.playBGM("bgm_fight.wav");
                     startRound();
                 }

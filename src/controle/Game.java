@@ -29,6 +29,7 @@ public class Game extends JFrame implements Runnable {
     public JLabel timerLabel = new JLabel("60", SwingConstants.CENTER);
     public JLabel p1WinsLabel = new JLabel("Venceu: 0", SwingConstants.LEFT);
     public JLabel p2WinsLabel = new JLabel("Venceu: 0", SwingConstants.RIGHT);
+    public JLabel roundResultLabel = new JLabel("", SwingConstants.CENTER);
     
     int timeLeft = 60;
     int p1Wins = 0, p2Wins = 0;
@@ -133,11 +134,17 @@ public class Game extends JFrame implements Runnable {
         p2WinsLabel.setBounds(650, 10, 100, 20);
         p2WinsLabel.setForeground(Color.WHITE);
 
+        roundResultLabel.setBounds(0, 200, 800, 100);
+        roundResultLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        roundResultLabel.setForeground(Color.YELLOW);
+        roundResultLabel.setVisible(false);
+
         battlePanel.add(healthBarP1);
         battlePanel.add(healthBarP2);
         battlePanel.add(timerLabel);
         battlePanel.add(p1WinsLabel);
         battlePanel.add(p2WinsLabel);
+        battlePanel.add(roundResultLabel);
 
         battlePanel.add(player1);
         battlePanel.add(player2);
@@ -220,10 +227,20 @@ public class Game extends JFrame implements Runnable {
             repaint();
             vencedorPanel.requestFocusInWindow();
         } else {
-            String msg = (winner == 1) ? "PLAYER 1 Venceu o Round!" : (winner == 2) ? "PLAYER 2 Venceu o Round!" : "Empate!";
-            JOptionPane.showMessageDialog(this, msg);
-            AudioPlayer.playBGM("bgm_fight.wav");
-            startRound();
+            String msg = (winner == 1) ? "PLAYER 1 VENCEU O ROUND!" : (winner == 2) ? "PLAYER 2 VENCEU O ROUND!" : "EMPATE!";
+            roundResultLabel.setText(msg);
+            roundResultLabel.setVisible(true);
+            
+            javax.swing.Timer timer = new javax.swing.Timer(3000, new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    roundResultLabel.setVisible(false);
+                    AudioPlayer.playBGM("bgm_fight.wav");
+                    startRound();
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
         }
     }
 

@@ -90,6 +90,8 @@ public class Game extends JFrame implements Runnable {
         this.player2 = p2;
         p1Wins = 0;
         p2Wins = 0;
+        
+        AudioPlayer.playBGM("bgm_fight.wav");
 
         healthBarP1.setBounds(30, 30, 300, 15);
         healthBarP1.setMinimum(0);
@@ -167,6 +169,9 @@ public class Game extends JFrame implements Runnable {
         if (!running) return;
         running = false;
         
+        AudioPlayer.stopBGM();
+        AudioPlayer.playSound("ko.wav");
+        
         int winner = 0; // 1 = P1, 2 = P2, 0 = Tie
         
         if (timeOut) {
@@ -193,6 +198,7 @@ public class Game extends JFrame implements Runnable {
         } else {
             String msg = (winner == 1) ? "PLAYER 1 Venceu o Round!" : (winner == 2) ? "PLAYER 2 Venceu o Round!" : "Empate!";
             JOptionPane.showMessageDialog(this, msg);
+            AudioPlayer.playBGM("bgm_fight.wav");
             startRound();
         }
     }
@@ -332,17 +338,23 @@ public class Game extends JFrame implements Runnable {
                         //Punch Damage with defense
                         hp2 -= 5;
                         healthBarP2.setValue(hp2);
+                        AudioPlayer.playSound("block.wav");
                         if (hp2 <= 0) {
                             checkRoundEnd(false);
+                            return;
                         }
                     } else {
                         //Punch Damage without defense
                         hp2 -= 15;
                         healthBarP2.setValue(hp2);
+                        AudioPlayer.playSound("hit.wav");
                         if (hp2 <= 0) {
                             checkRoundEnd(false);
+                            return;
                         }
                     }
+                } else {
+                    AudioPlayer.playSound("whiff.wav");
                 }
                 p1HasAttacked = true;
             }
@@ -355,17 +367,23 @@ public class Game extends JFrame implements Runnable {
                         //Kick Damage with defense
                         hp2 -= 10;
                         healthBarP2.setValue(hp2);
+                        AudioPlayer.playSound("block.wav");
                         if (hp2 <= 0) {
                             checkRoundEnd(false);
+                            return;
                         }
                     } else {
                         //Kick Damage without defense
                         hp2 -= 25;
                         healthBarP2.setValue(hp2);
+                        AudioPlayer.playSound("hit.wav");
                         if (hp2 <= 0) {
                             checkRoundEnd(false);
+                            return;
                         }
                     }
+                } else {
+                    AudioPlayer.playSound("whiff.wav");
                 }
                 p1HasAttacked = true;
             }
@@ -421,17 +439,23 @@ public class Game extends JFrame implements Runnable {
                         //Punch Damage with defense
                         hp1 -= 5;
                         healthBarP1.setValue((int) hp1);
+                        AudioPlayer.playSound("block.wav");
                         if (hp1 <= 0) {
                             checkRoundEnd(false);
+                            return;
                         }
                     } else {
                         //Punch Damage without defense
                         hp1 -= 15;
                         healthBarP1.setValue((int) hp1);
+                        AudioPlayer.playSound("hit.wav");
                         if (hp1 <= 0) {
                             checkRoundEnd(false);
+                            return;
                         }
                     }
+                } else {
+                    AudioPlayer.playSound("whiff.wav");
                 }
                 p2HasAttacked = true;
             }
@@ -444,17 +468,23 @@ public class Game extends JFrame implements Runnable {
                         //Kick Damage with defense
                         hp1 -= 10;
                         healthBarP1.setValue(hp1);
+                        AudioPlayer.playSound("block.wav");
                         if (hp1 <= 0) {
                             checkRoundEnd(false);
+                            return;
                         }
                     } else {
                         //Kick Damage without defense
                         hp1 -= 25;
                         healthBarP1.setValue(hp1);
+                        AudioPlayer.playSound("hit.wav");
                         if (hp1 <= 0) {
                             checkRoundEnd(false);
+                            return;
                         }
                     }
+                } else {
+                    AudioPlayer.playSound("whiff.wav");
                 }
                 p2HasAttacked = true;
             }

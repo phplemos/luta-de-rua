@@ -93,6 +93,7 @@ public class Player extends JLabel {
         if (!isJumping) {
             isJumping = true;
             velocityY = -30;
+            controle.AudioPlayer.playSound("jump.wav");
         }
     }
 

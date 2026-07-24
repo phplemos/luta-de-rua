@@ -35,6 +35,8 @@ public class Selecao extends JPanel implements ActionListener {
         getFight().addActionListener(this);
         
         setupKeyBindings();
+        
+        AudioPlayer.playBGM("bgm_menu.wav");
     }
     
     private void setupKeyBindings() {
@@ -59,6 +61,7 @@ public class Selecao extends JPanel implements ActionListener {
                     break;
                 }
             }
+            AudioPlayer.playSound("select.wav");
         } else if (click == 2) {
             click = 1;
             champP1 = null;
@@ -71,6 +74,7 @@ public class Selecao extends JPanel implements ActionListener {
                     break;
                 }
             }
+            AudioPlayer.playSound("select.wav");
         }
     }
 
@@ -139,12 +143,14 @@ public class Selecao extends JPanel implements ActionListener {
                     playButtons[i].setOpaque(true);
                     p1Label.setText("PLAYER 1: " + champP1.toUpperCase());
                     p2Label.setText("PLAYER 2: SELECIONANDO...");
+                    AudioPlayer.playSound("select.wav");
                 } else if (click == 2) {
                     champP2 = CHARACTERS[i].getId();
                     playButtons[i].setBackground(Color.RED);
                     playButtons[i].setOpaque(true);
                     p2Label.setText("PLAYER 2: " + champP2.toUpperCase());
                     click = 3;
+                    AudioPlayer.playSound("select.wav");
                 }
                 return;
             }
@@ -155,6 +161,8 @@ public class Selecao extends JPanel implements ActionListener {
             if (e.getSource() == getFight()) {
                 Game gframe = (Game) SwingUtilities.getWindowAncestor(this);
                 if(gframe != null){
+                    AudioPlayer.stopBGM();
+                    AudioPlayer.playSound("fight.wav");
                     Player player1 = new Player(1, champP1, Color.BLUE);
                     Player player2 = new Player(2, champP2, Color.RED);
                     gframe.startGame(player1, player2);

@@ -15,7 +15,7 @@ public class Vencedor extends JPanel implements ActionListener {
     private JLabel lblVencedor;
     private JLabel fundo;
     
-    public Vencedor(String winnerMsg) {
+    public Vencedor(String winnerMsg, Color winnerColor) {
         setLayout(null);
         
         AudioPlayer.playBGM("bgm_menu.wav");
@@ -23,12 +23,26 @@ public class Vencedor extends JPanel implements ActionListener {
         fundo = new JLabel(new ImageIcon(getClass().getResource("/assets/victory.png")));
         fundo.setBounds(0, 0, 800, 600);
         
+        Font labelFont = new Font("Impact", Font.BOLD, 65);
+
         lblVencedor = new JLabel(winnerMsg);
-        lblVencedor.setBounds(0, 100, 800, 80);
-        lblVencedor.setFont(new Font("Arial", Font.BOLD, 60));
-        lblVencedor.setForeground(Color.YELLOW);
+        lblVencedor.setBounds(2, 100, 800, 80);
+        lblVencedor.setFont(labelFont);
+        lblVencedor.setForeground(winnerColor);
         lblVencedor.setHorizontalAlignment(SwingConstants.CENTER);
         fundo.add(lblVencedor);
+
+        // Desenha contorno preto em 8 direções para legibilidade máxima
+        int[] dx = {-2, 0, 2, -2, 2, -2, 0, 2};
+        int[] dy = {-2, -2, -2, 0, 0, 2, 2, 2};
+        for (int i = 0; i < dx.length; i++) {
+            JLabel shadow = new JLabel(winnerMsg);
+            shadow.setBounds(2 + dx[i], 100 + dy[i], 800, 80);
+            shadow.setFont(labelFont);
+            shadow.setForeground(Color.BLACK);
+            shadow.setHorizontalAlignment(SwingConstants.CENTER);
+            fundo.add(shadow);
+        }
         
         btnJogarNovamente = new JButton("JOGAR NOVAMENTE");
         btnJogarNovamente.setBounds(250, 450, 300, 50);

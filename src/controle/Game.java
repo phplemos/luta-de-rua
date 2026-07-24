@@ -220,8 +220,9 @@ public class Game extends JFrame implements Runnable {
         p2WinsLabel.setText("Venceu: " + p2Wins);
         
         if (p1Wins == 2 || p2Wins == 2) {
-            String msg = (p1Wins == 2) ? "PLAYER 1 VENCEU A LUTA!" : "PLAYER 2 VENCEU A LUTA!";
-            Vencedor vencedorPanel = new Vencedor(msg);
+            String msg = (p1Wins == 2) ? "PLAYER 1 VENCEU!" : "PLAYER 2 VENCEU!";
+            Color winnerColor = (p1Wins == 2) ? Color.CYAN : Color.RED;
+            Vencedor vencedorPanel = new Vencedor(msg, winnerColor);
             setScreen(vencedorPanel);
             revalidate();
             repaint();

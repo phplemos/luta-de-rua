@@ -57,7 +57,7 @@ public class Vencedor extends JPanel implements ActionListener {
             Game gframe = (Game) SwingUtilities.getWindowAncestor(this);
             if (gframe != null) {
                 Selecao selecao = new Selecao();
-                gframe.setContentPane(selecao);
+                gframe.setScreen(selecao);
                 gframe.revalidate();
                 gframe.repaint();
                 selecao.requestFocusInWindow();

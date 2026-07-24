@@ -42,9 +42,19 @@ public class Game extends JFrame implements Runnable {
     Boolean p2HasAttacked = false;
 
     private JLabel stage = null;
+    private JPanel battlePanel = null;
 
     public Game() {
+        setUndecorated(true);
         initComponents();
+        
+        java.awt.GraphicsDevice gd = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        if (gd.isFullScreenSupported()) {
+            gd.setFullScreenWindow(this);
+        } else {
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+            setVisible(true);
+        }
     }
 
     private void initComponents() {
@@ -65,7 +75,8 @@ public class Game extends JFrame implements Runnable {
                 formKeyReleased(evt);
             }
         });
-        getContentPane().setLayout(null);
+        getContentPane().setLayout(new java.awt.GridBagLayout());
+        getContentPane().setBackground(Color.BLACK);
 
         pack();
     }
@@ -76,22 +87,33 @@ public class Game extends JFrame implements Runnable {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 Game g = new Game();
-                g.setBounds(0, 0, 800, 600);
-                g.setContentPane(selecao);
-                g.setResizable(true);
-                g.setVisible(true);
+                g.setScreen(selecao);
             }
         });
     }
 
-    public void startGame(Player p1, Player p2) {
+    public void setScreen(JPanel panel) {
         getContentPane().removeAll();
+        panel.setPreferredSize(new java.awt.Dimension(800, 600));
+        panel.setMinimumSize(new java.awt.Dimension(800, 600));
+        panel.setMaximumSize(new java.awt.Dimension(800, 600));
+        getContentPane().add(panel, new java.awt.GridBagConstraints());
+        revalidate();
+        repaint();
+        panel.requestFocusInWindow();
+    }
+
+    public void startGame(Player p1, Player p2) {
         this.player1 = p1;
         this.player2 = p2;
         p1Wins = 0;
         p2Wins = 0;
         
         AudioPlayer.playBGM("bgm_fight.wav");
+
+        battlePanel = new JPanel(null);
+        battlePanel.setPreferredSize(new java.awt.Dimension(800, 600));
+        battlePanel.setBackground(Color.BLACK);
 
         healthBarP1.setBounds(30, 30, 300, 15);
         healthBarP1.setMinimum(0);
@@ -111,15 +133,17 @@ public class Game extends JFrame implements Runnable {
         p2WinsLabel.setBounds(650, 10, 100, 20);
         p2WinsLabel.setForeground(Color.WHITE);
 
-        this.add(healthBarP1);
-        this.add(healthBarP2);
-        this.add(timerLabel);
-        this.add(p1WinsLabel);
-        this.add(p2WinsLabel);
+        battlePanel.add(healthBarP1);
+        battlePanel.add(healthBarP2);
+        battlePanel.add(timerLabel);
+        battlePanel.add(p1WinsLabel);
+        battlePanel.add(p2WinsLabel);
 
-        getContentPane().add(player1);
-        getContentPane().add(player2);
-        getContentPane().add(getStage());
+        battlePanel.add(player1);
+        battlePanel.add(player2);
+        battlePanel.add(getStage());
+
+        setScreen(battlePanel);
 
         startRound();
     }
@@ -191,7 +215,7 @@ public class Game extends JFrame implements Runnable {
         if (p1Wins == 2 || p2Wins == 2) {
             String msg = (p1Wins == 2) ? "PLAYER 1 VENCEU A LUTA!" : "PLAYER 2 VENCEU A LUTA!";
             Vencedor vencedorPanel = new Vencedor(msg);
-            setContentPane(vencedorPanel);
+            setScreen(vencedorPanel);
             revalidate();
             repaint();
             vencedorPanel.requestFocusInWindow();
